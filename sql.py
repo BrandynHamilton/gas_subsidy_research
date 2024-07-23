@@ -59,3 +59,47 @@ ORDER BY
 
 
 """
+
+prices_and_vol_query = """
+with eth_vol as (
+  select
+    date_trunc('hour', block_timestamp) as dt,
+    sum(AMOUNT_IN_USD) as total_volume
+  from
+    arbitrum.defi.ez_dex_swaps
+  where
+    date_trunc('day', block_timestamp) >= '2023-07-01'
+    and platform != 'uniswap-v3'
+  group by
+    date_trunc('hour', block_timestamp)
+  order by
+    dt desc
+),
+eth_btc_prices as (
+  select
+    hour as dt,
+    symbol,
+    price
+  from
+    ethereum.price.ez_prices_hourly
+  where
+    date_trunc('day', hour) >= '2023-07-01'
+    and symbol in('WETH', 'WBTC')
+  order by
+    dt desc
+)
+select
+  e.dt,
+  eb.symbol,
+  eb.price,
+  e.total_volume as arbitrum_vol_ex_uni
+from
+  eth_vol e
+  left join eth_btc_prices eb on e.dt = eb.dt
+order by
+  e.dt desc
+
+
+
+
+"""
