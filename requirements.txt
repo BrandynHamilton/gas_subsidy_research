@@ -1,0 +1,9 @@
+pandas
+numpy
+dune-client
+flipside
+plotly
+datetime
+python-dotenv
+prophet
+scikit-learn
